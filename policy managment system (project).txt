@@ -1,0 +1,92 @@
+#include <iostream>
+#include <string>
+using namespace std;
+struct Policy {
+    int id;
+    string name;
+    double premium;
+    int duration;
+    Policy(int id, string name, double premium, int duration)
+        : id(id), name(name), premium(premium), duration(duration) {}
+};
+struct Node {
+    Policy policy;
+    Node* left;
+    Node* right;
+    Node(Policy policy) : policy(policy), left(nullptr), right(nullptr) {}
+};
+
+class PolicyManagementSystem {
+private:
+    Node* root;
+    Node* insert(Node* node, Policy policy) {
+        if (node == nullptr) {
+            return new Node(policy);
+        }
+        if (policy.id < node->policy.id) {
+            node->left = insert(node->left, policy);
+        } else if (policy.id > node->policy.id) {
+            node->right = insert(node->right, policy);
+        }
+        return node;
+    }
+    Node* search(Node* node, int id) {
+        if (node == nullptr || node->policy.id == id) {
+            return node;
+        }
+        if (id < node->policy.id) {
+            return search(node->left, id);
+        } else {
+            return search(node->right, id);
+        }
+    }
+    void inOrder(Node* node) {
+        if (node != nullptr) {
+            inOrder(node->left);
+            cout << "ID: " << node->policy.id
+                 << ", Name: " << node->policy.name
+                 << ", Premium: " << node->policy.premium
+                 << ", Duration: " << node->policy.duration << " years\n";
+            inOrder(node->right);
+        }
+    }
+
+public:
+    PolicyManagementSystem() : root(nullptr) {}
+    void addPolicy(int id, string name, double premium, int duration) {
+        Policy policy(id, name, premium, duration);
+        root = insert(root, policy);
+        cout << "Policy added successfully!\n";
+    }
+    void searchPolicy(int id) {
+        Node* result = search(root, id);
+        if (result != nullptr) {
+            cout << "Policy found: ID=" << result->policy.id
+                 << ", Name=" << result->policy.name
+                 << ", Premium=" << result->policy.premium
+                 << ", Duration=" << result->policy.duration << " years\n";
+        } else {
+            cout << "Policy not found!\n";
+        }
+    }
+    void displayPolicies() {
+        if (root == nullptr) {
+            cout << "No policies to display.\n";
+        } else {
+            cout << "Policies:\n";
+            inOrder(root);
+        }
+    }
+};
+
+int main() {
+    PolicyManagementSystem pms;
+    pms.addPolicy(101, "Health Insurance", 1200.5, 10);
+    pms.addPolicy(102, "Life Insurance", 800.75, 15);
+    pms.addPolicy(103, "Vehicle Insurance", 500.25, 5);
+    pms.displayPolicies();
+    pms.searchPolicy(102);
+    pms.searchPolicy(105);
+
+    return 0;
+}
